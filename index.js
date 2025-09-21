@@ -1,8 +1,9 @@
 
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const dotenv = require("dotenv");
+const { Query } = require("mongoose");
 
 
 dotenv.config();
@@ -24,7 +25,25 @@ const client = new MongoClient(uri, {
 });
 async function run() {
     try {
+        const jobsColletion = client.db('skillserver').collection('jobs')
+        const bidssColletion = client.db('skillserver').collection('bids')
         // Connect the client to the server	(optional starting in v4.7)
+        // Get add jobs data from db
+
+        app.get('/jobs', async (req, res) => {
+            const result = await jobsColletion.find().toArray();
+            console.log(result);
+            res.send(result);
+        });
+
+        app.get('/job/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await jobsColletion.findOne(query);
+            res.send(result);
+        })
+
+
         // await client.connect();
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
